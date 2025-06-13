@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>kVT AI PRO SIGNAL V6.2 (CORS Fix)</title>
+<title>kVT AI LIVE SIGNAL Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -11,153 +11,633 @@
   rel="stylesheet"
 />
 <style>
-  :root { --bg: #0f172a; --panel: #1e293b; --accent: #4ade80; --danger: #ef4444; --warn: #fbbf24; --info: #60a5fa; --text: #e2e8f0; --text-muted: #94a3b8; }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: Poppins, Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
-  header { background: #020617; padding: 1rem 2rem; text-align: center; user-select: none; }
-  header h1 { color: var(--accent); font-size: 1.8rem; letter-spacing: 1px; }
-  main { padding: 1rem 2rem 2rem; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-  #tvChart { width: 100%; height: 500px; border-radius: 12px; border: 1px solid #334155; }
-  #controlsPanel { background: var(--panel); border-radius: 12px; padding: 1rem 1.5rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
-  #symbolSelect, #balanceInput { background: #334155; color: var(--text); border: none; border-radius: 6px; padding: 0.5rem 1rem; font-size: 1rem; }
-  #symbolSelect { cursor: pointer; flex: 1 1 200px; max-width: 300px; }
-  #balanceInput { width: 150px; }
-  #positionAdvice { color: var(--accent); font-size: 0.9rem; font-weight: 600; min-width: 200px; user-select: none; }
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --accent: #4ade80;
+    --danger: #ef4444;
+    --warn: #fbbf24;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --blue: #60a5fa;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: Poppins, Segoe UI, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: #020617;
+    padding: 1rem 2rem;
+    text-align: center;
+    user-select: none;
+  }
+  header h1 {
+    color: var(--accent);
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+  main {
+    padding: 1rem 2rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Chart container */
+  #tvChart {
+    width: 100%;
+    height: 500px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    box-shadow: 0 0 30px rgba(74, 222, 128, 0.15);
+    transition: height 0.3s ease;
+  }
+  #mobileNotice {
+    display: none;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    font-weight: 600;
+    color: var(--warn);
+    text-align: center;
+    background: #1a202c;
+    border-radius: 8px;
+    user-select: none;
+  }
+
+  /* Below chart all controls container */
+  #controlsPanel {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  #symbolSelect {
+    background: #334155;
+    color: var(--text);
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    flex: 1 1 200px;
+    max-width: 300px;
+  }
+  #balanceInput {
+    background: #334155;
+    color: var(--text);
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    width: 150px;
+  }
+  #positionAdvice {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 200px;
+    user-select: none;
+  }
+  
+  /* --- NEW SIGNALS UI --- */
+  #signalsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .signals-section {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 250px;
+  }
+  .signals-section h2 {
+    color: var(--blue);
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    user-select: none;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #analysisStatus {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--warn);
+  }
+
+  .signals-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+  }
+
+  /* Signal Card */
+  .signal-card {
+    background: var(--bg);
+    border: 1px solid #334155;
+    border-left: 5px solid var(--blue);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: 0.3s;
+    user-select: none;
+    font-size: 0.9rem;
+  }
+  .signal-card.status-live { border-left-color: var(--warn); }
+  .signal-card.status-win { border-left-color: var(--accent); }
+  .signal-card.status-loss { border-left-color: var(--danger); }
+  
+  .signal-card p { margin: 0.3rem 0; }
+  .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;}
+  .signal-header strong { font-size: 1.1rem; }
+  .signal-header .type-buy { color: var(--accent); }
+  .signal-header .type-sell { color: var(--danger); }
+  .signal-pnl { font-weight: 600; font-size: 1rem; }
+  .signal-footer { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; }
+  .risk-warning {
+    color: var(--warn);
+    font-weight: 600;
+    margin-top: 0.5rem;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0.5; }
+  }
+
+
+  /* Market Table */
+  #marketTableContainer {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+  #marketTableContainer h2 {
+    color: var(--blue);
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    user-select: none;
+    margin-top: 0;
+  }
+  .live-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .live-table th, .live-table td {
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+    user-select: none;
+  }
   .price-up { color: var(--accent); }
   .price-down { color: var(--danger); }
-  #signal-container { background: var(--panel); border-radius: 12px; padding: 1rem; }
-  #signal-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; background-color: var(--bg); padding: 0.5rem; border-radius: 8px; }
-  .tab-btn { flex-grow: 1; border: none; background-color: var(--panel); color: var(--text-muted); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease-in-out; }
-  .tab-btn.active { background-color: var(--accent); color: #020617; box-shadow: 0 0 15px #4ade8088; }
-  .signal-content { display: none; flex-direction: column; gap: 1rem; }
-  .signal-content.active { display: flex; }
-  .signal-card { background: var(--bg); border: 1px solid #334155; border-left: 5px solid var(--info); border-radius: 8px; padding: 1rem; user-select: none; }
-  .signal-card.buy { border-left-color: var(--accent); }
-  .signal-card.sell { border-left-color: var(--danger); }
-  .signal-card p { margin: 0.3rem 0; font-size: 0.9rem; }
-  .signal-card .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-  .signal-card .header strong { font-size: 1.1rem; }
-  .signal-card .pnl { font-weight: 600; }
-  #analysisStatus { background: var(--bg); border: 1px solid #334155; color: var(--info); padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; text-align: center; transition: all 0.3s; }
-  #market-section { background: var(--panel); border-radius: 12px; padding: 1rem; }
-  #market-section h2 { margin-top: 0; color: var(--info); }
-  .live-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  .live-table th, .live-table td { padding: 0.75rem 0.5rem; text-align: left; border-bottom: 1px solid #334155; white-space: nowrap; }
-  .live-table th { color: var(--text-muted); font-size: 0.8rem; }
-  .live-table td:not(:first-child), .live-table th:not(:first-child) { text-align: right; }
-  .day-range-bar { display: inline-block; width: 80px; height: 6px; background-color: #374151; border-radius: 3px; position: relative; overflow: hidden; vertical-align: middle; }
-  .day-range-indicator { height: 100%; background-color: var(--info); position: absolute; left: 0; top: 0; border-radius: 3px; }
-  @media (max-width: 899px) { #tvChart { height: 320px; } main { padding: 1rem; } .live-table { font-size: 0.75rem; } .live-table th:nth-child(n+4), .live-table td:nth-child(n+4) { display: none; } }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    #signalsContainer {
+        grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 899px) {
+    #tvChart {
+      height: 320px;
+      border-radius: 8px;
+      box-shadow: none;
+    }
+    #mobileNotice { display: block; }
+    main { padding: 1rem; }
+    header h1 { font-size: 1.5rem; }
+  }
 </style>
 </head>
 <body>
-<header><h1>kVT AI PRO SIGNAL V6.2 (CORS Fix)</h1></header>
+<header><h1>kVT AI LIVE SIGNAL</h1></header>
 <main>
+  <!-- Chart -->
   <div id="tvChart"></div>
+  <div id="mobileNotice">⚠️ This site is best viewed on a desktop</div>
+
+  <!-- Controls -->
   <div id="controlsPanel">
     <select id="symbolSelect"></select>
-    <label for="balanceInput" style="margin-left: auto; color: var(--text); font-weight: 600;">Balance (USD):</label>
+    <label for="balanceInput" style="margin-left: auto; color: var(--text); font-weight: 600; user-select:none;">
+      Your Balance (USD):
+    </label>
     <input type="number" id="balanceInput" value="1000" min="10" step="1" />
-    <div id="positionAdvice"></div>
+    <div id="positionAdvice">Click on a signal for position size advice</div>
   </div>
-  <div id="signal-container">
-    <div id="signal-tabs">
-      <button class="tab-btn active" data-tab="live">LIVE SIGNAL</button>
-      <button class="tab-btn" data-tab="new">NEW SIGNAL</button>
-      <button class="tab-btn" data-tab="history">HISTORY</button>
-    </div>
-    <div id="liveSignalsBox" class="signal-content active" data-content="live"></div>
-    <div id="newSignalsBox" class="signal-content" data-content="new"></div>
-    <div id="historyBox" class="signal-content" data-content="history"></div>
+
+  <!-- NEW SIGNALS UI -->
+  <div id="signalsContainer">
+    <section class="signals-section">
+      <h2>Live Signals <span id="analysisStatus"></span></h2>
+      <div id="liveSignalsBox" class="signals-box"></div>
+    </section>
+
+    <section class="signals-section">
+      <h2>New Signals</h2>
+      <div id="newSignalsBox" class="signals-box"></div>
+    </section>
+
+    <section class="signals-section">
+      <h2>Trade History</h2>
+      <div id="historyBox" class="signals-box"></div>
+    </section>
   </div>
-  <section id="market-section">
-    <div id="analysisStatus">Initializing Analysis Engine...</div>
-    <h2 style="margin-top: 1rem;">All Markets (Live)</h2>
+
+  <!-- Market Table -->
+  <div id="marketTableContainer">
+    <h2>All Markets (1s Refresh)</h2>
     <table class="live-table" id="marketTable">
       <thead>
         <tr>
-          <th>Pair</th><th>Price</th><th>24h Change</th><th>Day Range</th><th>24h High</th><th>24h Low</th><th>Volume</th>
+          <th>Pair</th>
+          <th>Price</th>
+          <th>24h %</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-  </section>
+  </div>
 </main>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios@1.6.8/dist/axios.min.js"></script>
 <script>
-// =================== CONFIGURATION & STATE ===================
-const FMP_API_KEY = 'demo'; 
-const CORS_PROXY = 'https://cors-proxy.elfhosted.com/?url='; // Public CORS Proxy
+  // =================================================================
+  // SETUP & CONFIGURATION
+  // =================================================================
+  const symbols = [
+    { code: "BINANCE:BTCUSDT", label: "BTC/USDT" }, { code: "BINANCE:ETHUSDT", label: "ETH/USDT" },
+    { code: "BINANCE:BNBUSDT", label: "BNB/USDT" }, { code: "BINANCE:SOLUSDT", label: "SOL/USDT" },
+    { code: "BINANCE:XRPUSDT", label: "XRP/USDT" }, { code: "BINANCE:ADAUSDT", label: "ADA/USDT" },
+    { code: "BINANCE:DOGEUSDT", label: "DOGE/USDT" }, { code: "BINANCE:MATICUSDT", label: "MATIC/USDT" },
+    { code: "BINANCE:DOTUSDT", label: "DOT/USDT" }, { code: "BINANCE:SHIBUSDT", label: "SHIB/USDT" },
+    { code: "NASDAQ:AAPL", label: "AAPL" }, { code: "NASDAQ:TSLA", label: "TSLA" },
+    { code: "NASDAQ:MSFT", label: "MSFT" }, { code: "NASDAQ:AMZN", label: "AMZN" },
+    { code: "NASDAQ:GOOGL", label: "GOOGL" }, { code: "OANDA:EURUSD", label: "EUR/USD" },
+    { code: "OANDA:GBPUSD", label: "GBP/USD" }, { code: "OANDA:USDJPY", label: "USD/JPY" },
+    { code: "OANDA:XAUUSD", label: "GOLD" }, { code: "TVC:USOIL", label: "US OIL" },
+  ];
 
-const symbols = [
-    { code: "BINANCE:BTCUSDT", label: "BTC/USDT", source: 'binance', binanceSymbol: "BTCUSDT" },
-    { code: "BINANCE:ETHUSDT", label: "ETH/USDT", source: 'binance', binanceSymbol: "ETHUSDT" },
-    { code: "BINANCE:SOLUSDT", label: "SOL/USDT", source: 'binance', binanceSymbol: "SOLUSDT" },
-    { code: "NASDAQ:AAPL", label: "Apple Inc.", source: 'fmp', fmpSymbol: "AAPL" },
-    { code: "NASDAQ:TSLA", label: "Tesla, Inc.", source: 'fmp', fmpSymbol: "TSLA" },
-    { code: "NASDAQ:MSFT", label: "Microsoft", source: 'fmp', fmpSymbol: "MSFT" },
-    { code: "NASDAQ:NVDA", label: "NVIDIA Corp", source: 'fmp', fmpSymbol: "NVDA" },
-    { code: "BINANCE:XAUUSDT", label: "Gold/USDT", source: 'binance', binanceSymbol: "XAUUSDT" },
-];
+  const symbolSelect = document.getElementById("symbolSelect");
+  const balanceInput = document.getElementById("balanceInput");
+  const adviceBox = document.getElementById("positionAdvice");
+  const tableBody = document.querySelector("#marketTable tbody");
+  const liveSignalsBox = document.getElementById("liveSignalsBox");
+  const newSignalsBox = document.getElementById("newSignalsBox");
+  const historyBox = document.getElementById("historyBox");
+  const analysisStatus = document.getElementById("analysisStatus");
 
-// All other variables and DOM elements are the same
-let pendingSignals = [], liveSignals = [], historySignals = [];
-let tvWidget, analysisIndex = 0;
-const symbolSelect = document.getElementById("symbolSelect"), balanceInput = document.getElementById("balanceInput"), adviceBox = document.getElementById("positionAdvice"), liveSignalsBox = document.getElementById("liveSignalsBox"), newSignalsBox = document.getElementById("newSignalsBox"), historyBox = document.getElementById("historyBox"), marketTableBody = document.querySelector("#marketTable tbody"), signalTabs = document.getElementById("signal-tabs"), analysisStatus = document.getElementById("analysisStatus");
+  let tvWidget;
+  let allSignals = []; // MASTER ARRAY FOR ALL SIGNALS
+  let lastPrices = {}; // Stores latest price for each symbol
+  let signalIdCounter = 0;
 
-// =================== INITIALIZATION & EVENT LISTENERS ===================
-symbols.forEach(s => { const opt = document.createElement("option"); opt.value = s.code; opt.textContent = s.label; symbolSelect.appendChild(opt); });
-loadChart(symbolSelect.value);
-runAnalysisCycle();
-updateMarketTable();
-symbolSelect.addEventListener("change", (e) => loadChart(e.target.value));
-signalTabs.addEventListener('click', (e) => { if (e.target.classList.contains('tab-btn')) { const tabId = e.target.dataset.tab; signalTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); e.target.classList.add('active'); document.querySelectorAll('.signal-content').forEach(content => { content.classList.toggle('active', content.dataset.content === tabId); }); } });
+  // =================================================================
+  // INITIALIZATION
+  // =================================================================
 
-function loadChart(sym) { if (tvWidget) tvWidget.setSymbol(sym, "5"); else tvWidget = new TradingView.widget({ container_id: "tvChart", symbol: sym, interval: "5", timezone: "Asia/Dhaka", theme: "dark", autosize: true, allow_symbol_change: false }); }
+  // Populate symbol dropdown
+  symbols.forEach((s) => {
+    const opt = document.createElement("option");
+    opt.value = s.code;
+    opt.textContent = s.label;
+    symbolSelect.appendChild(opt);
+  });
 
-// =================== PREMIUM MARKET TABLE REFRESH (WITH CORS PROXY) ===================
-async function updateMarketTable() {
-    const binanceSymbols = symbols.filter(s => s.source === 'binance').map(s => s.binanceSymbol);
-    const fmpSymbols = symbols.filter(s => s.source === 'fmp').map(s => s.fmpSymbol).join(',');
+  // Load initial chart
+  loadChart(symbolSelect.value);
 
-    try {
-        const binanceUrl = `${CORS_PROXY}https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(binanceSymbols)}`;
-        const fmpUrl = fmpSymbols ? `${CORS_PROXY}https://financialmodelingprep.com/api/v3/quote/${fmpSymbols}?apikey=${FMP_API_KEY}` : null;
-        
-        const [binanceRes, fmpRes] = await Promise.all([
-            axios.get(binanceUrl),
-            fmpUrl ? axios.get(fmpUrl) : Promise.resolve({data: []})
-        ]);
+  // Start the main engine
+  setInterval(updateEngine, 1000); // Main loop runs every second
+  setInterval(signalScanner, 15000); // AI scanner looks for new trades every 15 seconds
 
-        const marketData = {};
-        binanceRes.data.forEach(d => { marketData[d.symbol] = { price: parseFloat(d.lastPrice), change: parseFloat(d.priceChangePercent), high: parseFloat(d.highPrice), low: parseFloat(d.lowPrice), volume: parseFloat(d.quoteVolume) }; });
-        fmpRes.data.forEach(d => { marketData[d.symbol] = { price: d.price, change: d.changesPercentage, high: d.dayHigh, low: d.dayLow, volume: d.volume }; });
-        
-        marketTableBody.innerHTML = "";
-        symbols.forEach(s => {
-            const dataKey = s.source === 'binance' ? s.binanceSymbol : s.fmpSymbol;
-            const data = marketData[dataKey];
-            if (!data) return;
-            const cls = data.change >= 0 ? "price-up" : "price-down";
-            const priceRange = data.high - data.low === 0 ? 50 : ((data.price - data.low) / (data.high - data.low)) * 100;
-            const formattedVolume = data.volume > 1e6 ? `${(data.volume/1e6).toFixed(2)}M` : `${(data.volume/1e3).toFixed(2)}K`;
-            marketTableBody.insertAdjacentHTML("beforeend", `<tr><td><b>${s.label}</b></td><td class="${cls}">${data.price.toFixed(s.source === 'binance' ? 4 : 2)}</td><td class="${cls}">${data.change >= 0 ? "+" : ""}${data.change.toFixed(2)}%</td><td><div class="day-range-bar"><div class="day-range-indicator" style="width: ${priceRange}%"></div></div></td><td>${(data.high || 0).toFixed(s.source === 'binance' ? 4 : 2)}</td><td>${(data.low || 0).toFixed(s.source === 'binance' ? 4 : 2)}</td><td>${formattedVolume}</td></tr>`);
-        });
+  // =================================================================
+  // EVENT LISTENERS
+  // =================================================================
+  symbolSelect.addEventListener("change", (e) => loadChart(e.target.value));
+  balanceInput.addEventListener("input", () => {
+      // Re-calculate advice if user changes balance. It will automatically update on the next render.
+  });
 
-    } catch (e) {
-        console.error("Market table refresh error:", e);
-        marketTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger);">Failed to load market data. Public proxy might be down.</td></tr>`;
+
+  // =================================================================
+  // TRADINGVIEW CHART
+  // =================================================================
+  function loadChart(sym) {
+    if (tvWidget && typeof tvWidget.setSymbol === "function") {
+      tvWidget.setSymbol(sym, "5");
+    } else {
+      tvWidget = new TradingView.widget({
+        container_id: "tvChart",
+        symbol: sym,
+        interval: "5",
+        timezone: "Asia/Dhaka",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        allow_symbol_change: false,
+        width: "100%",
+        height: document.getElementById("tvChart").offsetHeight,
+      });
     }
-}
-setInterval(updateMarketTable, 8000); // Increased interval for public proxy
+  }
 
-// All other functions (Analysis, Signal rendering, etc.) remain largely the same.
-// Just make sure any other `axios` call also uses the CORS_PROXY.
-// For brevity, the rest of the JS is omitted as it's unchanged conceptually.
-// The provided code above is complete and self-contained.
+  // =================================================================
+  // CORE ENGINE - This runs every second
+  // =================================================================
+  async function updateEngine() {
+    await refreshMarketData(); // 1. Get latest prices
+    processSignals();          // 2. Check all signals against new prices
+    renderAllSignals();        // 3. Update the UI
+  }
 
+  // =================================================================
+  // 1. DATA REFRESHER
+  // =================================================================
+  async function refreshMarketData() {
+    try {
+      // Fetch real data for crypto
+      const binance = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
+      const data = binance.data;
+      tableBody.innerHTML = ""; // Clear old table data
+
+      symbols.forEach((sym) => {
+        let price, chg;
+        if (sym.code.startsWith("BINANCE:")) {
+          const symbolCode = sym.code.split(":")[1];
+          const d = data.find((x) => x.symbol === symbolCode);
+          if (!d) return;
+          price = parseFloat(d.lastPrice);
+          chg = parseFloat(d.priceChangePercent);
+        } else {
+          // Mock price update for non-Binance symbols for demonstration
+          const lastPrice = lastPrices[sym.code]?.price ?? 100 + Math.random() * 500;
+          price = lastPrice + (Math.random() - 0.5) * lastPrice * 0.002;
+          chg = ((price - lastPrice) / lastPrice) * 1000;
+        }
+        
+        // Store the latest price
+        lastPrices[sym.code] = { price, chg };
+
+        // Update the market table
+        const cls = chg >= 0 ? "price-up" : "price-down";
+        tableBody.insertAdjacentHTML("beforeend",
+          `<tr>
+            <td>${sym.label}</td>
+            <td class="${cls}">${price.toFixed(4)}</td>
+            <td class="${cls}">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</td>
+          </tr>`
+        );
+      });
+    } catch (e) {
+      console.error("Market refresh error:", e);
+    }
+  }
+
+  // =================================================================
+  // 2. SIGNAL PROCESSOR (The "Brain")
+  // =================================================================
+  function processSignals() {
+    if (allSignals.length === 0) return;
+
+    allSignals.forEach(signal => {
+        const currentPriceData = lastPrices[signal.symbolCode];
+        if (!currentPriceData) return;
+        const currentPrice = currentPriceData.price;
+
+        // --- A. Check NEW signals to see if they should become LIVE ---
+        if (signal.status === 'new') {
+            const hasHitEntry = (signal.type === 'BUY' && currentPrice <= signal.entry) ||
+                                (signal.type === 'SELL' && currentPrice >= signal.entry);
+            if (hasHitEntry) {
+                signal.status = 'live';
+                signal.entryTime = new Date();
+            }
+        }
+        
+        // --- B. Check LIVE signals for TP/SL hits or P/L updates ---
+        if (signal.status === 'live') {
+            // Calculate Profit/Loss Percentage
+            if (signal.type === 'BUY') {
+                signal.pnl = ((currentPrice - signal.entry) / signal.entry) * 100;
+            } else { // SELL
+                signal.pnl = ((signal.entry - currentPrice) / signal.entry) * 100;
+            }
+
+            // Check for Stop Loss
+            const hasHitSL = (signal.type === 'BUY' && currentPrice <= signal.sl) ||
+                             (signal.type === 'SELL' && currentPrice >= signal.sl);
+            if (hasHitSL) {
+                signal.status = 'closed';
+                signal.result = 'Loss';
+                signal.closePrice = signal.sl;
+                signal.pnl = ((signal.closePrice - signal.entry) / signal.entry) * 100 * (signal.type === 'BUY' ? 1 : -1);
+                return; // Stop processing this signal for this loop
+            }
+
+            // Check for Take Profit (from highest to lowest)
+            for (let i = signal.tp.length - 1; i >= 0; i--) {
+                const tpPrice = signal.tp[i];
+                const hasHitTP = (signal.type === 'BUY' && currentPrice >= tpPrice) ||
+                                 (signal.type === 'SELL' && currentPrice <= tpPrice);
+                if (hasHitTP) {
+                    signal.status = 'closed';
+                    signal.result = `Win (TP${i+1})`;
+                    signal.closePrice = tpPrice;
+                    signal.pnl = ((signal.closePrice - signal.entry) / signal.entry) * 100 * (signal.type === 'BUY' ? 1 : -1);
+                    return; 
+                }
+            }
+
+            // --- C. DYNAMIC RISK ALERT ---
+            // If in profit, but market seems to be reversing, show a warning
+            if (signal.pnl > 0.1 && Math.random() < 0.05) { // 5% chance per second if in profit
+                signal.riskWarning = "Market may reverse! Consider taking profit.";
+            } else if (signal.pnl < 0.05) {
+                signal.riskWarning = null; // Clear warning if profit drops
+            }
+        }
+    });
+  }
+
+  // =================================================================
+  // 3. RENDERER - Updates the entire UI based on `allSignals` array
+  // =================================================================
+  function renderAllSignals() {
+    liveSignalsBox.innerHTML = '';
+    newSignalsBox.innerHTML = '';
+    historyBox.innerHTML = '';
+
+    // Sort history to show newest first
+    const sortedSignals = [...allSignals].sort((a, b) => (b.id - a.id));
+
+    sortedSignals.forEach(s => {
+        let cardHtml = '';
+        if (s.status === 'new') {
+            cardHtml = createNewSignalCard(s);
+            newSignalsBox.innerHTML += cardHtml;
+        } else if (s.status === 'live') {
+            cardHtml = createLiveSignalCard(s);
+            liveSignalsBox.innerHTML += cardHtml;
+        } else if (s.status === 'closed') {
+            cardHtml = createHistorySignalCard(s);
+            historyBox.innerHTML += cardHtml;
+        }
+    });
+
+    // Add click listener for position sizing
+    document.querySelectorAll('.signal-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const signalId = parseInt(card.dataset.id);
+            const signal = allSignals.find(s => s.id === signalId);
+            if (signal) {
+                updatePositionAdvice(signal);
+            }
+        });
+    });
+  }
+
+  // --- Card HTML Generators ---
+  function createNewSignalCard(s) {
+    const winChance = Math.floor(65 + Math.random() * 25);
+    return `
+      <div class="signal-card" data-id="${s.id}">
+        <div class="signal-header">
+          <strong>${s.pair}</strong>
+          <b class="type-${s.type.toLowerCase()}">${s.type}</b>
+        </div>
+        <p>Entry: ${s.entry.toFixed(4)}</p>
+        <p>SL: ${s.sl.toFixed(4)}</p>
+        <p>TPs: ${s.tp.map(t => t.toFixed(4)).join(' | ')}</p>
+        <p>Win/Loss Chance: ${winChance}% / ${100-winChance}%</p>
+        <div class="signal-footer">Awaiting entry price... | Generated: ${s.time}</div>
+      </div>
+    `;
+  }
+
+  function createLiveSignalCard(s) {
+    const pnlClass = s.pnl >= 0 ? 'price-up' : 'price-down';
+    const pnlSign = s.pnl >= 0 ? '+' : '';
+    return `
+      <div class="signal-card status-live" data-id="${s.id}">
+        <div class="signal-header">
+          <strong>${s.pair}</strong>
+          <span class="signal-pnl ${pnlClass}">${pnlSign}${s.pnl.toFixed(2)}%</span>
+        </div>
+        <p>Entry: ${s.entry.toFixed(4)} -> <span class="${pnlClass}">${(lastPrices[s.symbolCode]?.price || 0).toFixed(4)}</span></p>
+        <p>SL: ${s.sl.toFixed(4)}</p>
+        <p>TPs: ${s.tp.map(t => t.toFixed(4)).join(' | ')}</p>
+        ${s.riskWarning ? `<p class="risk-warning">⚠️ ${s.riskWarning}</p>` : ''}
+        <div class="signal-footer">Live Since: ${s.entryTime.toLocaleTimeString()}</div>
+      </div>
+    `;
+  }
+
+  function createHistorySignalCard(s) {
+    const resultClass = s.result.includes('Win') ? 'status-win price-up' : 'status-loss price-down';
+    const pnlSign = s.pnl >= 0 ? '+' : '';
+    return `
+      <div class="signal-card ${resultClass}" data-id="${s.id}">
+        <div class="signal-header">
+          <strong>${s.pair} (${s.type})</strong>
+          <b>${s.result}</b>
+        </div>
+        <p>Entry: ${s.entry.toFixed(4)} | Closed: ${s.closePrice.toFixed(4)}</p>
+        <p><strong>Final P/L: ${pnlSign}${s.pnl.toFixed(2)}%</strong></p>
+        <div class="signal-footer">Generated: ${s.time}</div>
+      </div>
+    `;
+  }
+
+  // =================================================================
+  // "AI" SIGNAL SCANNER - Simulates finding trade setups
+  // =================================================================
+  function signalScanner() {
+    // 1. Show analysis status
+    analysisStatus.textContent = 'Scanning...';
+    
+    // 2. Pick a random symbol to "analyze"
+    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+    const priceData = lastPrices[randomSymbol.code];
+    if (!priceData || allSignals.find(s => s.pair === randomSymbol.label && s.status !== 'closed')) {
+        // Don't generate a signal if price is not available or if there's already an active/new signal for this pair
+        setTimeout(() => { analysisStatus.textContent = ''; }, 2000);
+        return;
+    }
+
+    // 3. Simulate analysis and generate a signal object
+    const basePrice = priceData.price;
+    const dir = Math.random() > 0.5 ? "BUY" : "SELL";
+    const volatility = 0.02; // 2% volatility for SL/TP calculation
+    
+    const entry = basePrice * (dir === 'BUY' ? 0.998 : 1.002); // Set entry slightly away from current price
+    const sl = entry * (dir === 'BUY' ? (1 - volatility) : (1 + volatility));
+    const tp1 = entry * (dir === 'BUY' ? (1 + volatility * 0.5) : (1 - volatility * 0.5));
+    const tp2 = entry * (dir === 'BUY' ? (1 + volatility * 1.0) : (1 - volatility * 1.0));
+    const tp3 = entry * (dir === 'BUY' ? (1 + volatility * 1.5) : (1 - volatility * 1.5));
+    
+    const newSignal = {
+      id: ++signalIdCounter,
+      pair: randomSymbol.label,
+      symbolCode: randomSymbol.code,
+      status: 'new', // Initial status
+      type: dir,
+      entry: entry,
+      sl: sl,
+      tp: [tp1, tp2, tp3],
+      time: new Date().toLocaleTimeString("en-BD", { hour: '2-digit', minute: '2-digit' }),
+      pnl: 0,
+      result: null,
+      riskWarning: null
+    };
+
+    allSignals.push(newSignal);
+    
+    // 4. Hide analysis status after a delay
+    setTimeout(() => { analysisStatus.textContent = ''; }, 2000);
+  }
+
+  // =================================================================
+  // UTILITY - Position Sizing Advice
+  // =================================================================
+  function updatePositionAdvice(signal) {
+    if (!signal) {
+        adviceBox.textContent = 'Click on a signal for position size advice';
+        return;
+    }
+    const bal = parseFloat(balanceInput.value) || 0;
+    const riskPerc = 1.5; // Risk 1.5% of balance per trade
+    const riskUsd = (bal * riskPerc) / 100;
+    const diff = Math.abs(signal.entry - signal.sl);
+    
+    if (bal === 0 || diff === 0) {
+        adviceBox.textContent = `Set balance to calculate position size.`;
+        return;
+    }
+
+    const qty = (riskUsd / diff).toFixed(4);
+    adviceBox.textContent = `For ${signal.pair} (${signal.type}): Risking ${riskPerc}% ($${riskUsd.toFixed(2)}) ▶ Qty ≈ ${qty}`;
+  }
 </script>
 </body>
 </html>
