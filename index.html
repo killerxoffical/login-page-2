@@ -113,40 +113,39 @@
 </style>
 </head>
 <body>
-<header><h1>kVT AI Personalized Signal Dashboard</h1></header>
+<header><h1>kVT AI Signal Dashboard</h1></header>
 <main>
   <div id="tvChart"></div>
 
   <div id="controlsPanel">
     <select id="symbolSelect"></select>
-    <label for="balanceInput" style="color: var(--text); font-weight: 600;">আপনার ব্যালেন্স (USD):</label>
+    <label for="balanceInput" style="color: var(--text); font-weight: 600;">Your Balance (USD):</label>
     <input type="number" id="balanceInput" value="1000" min="10" step="1" />
-    <button id="findTradesBtn">আমার জন্য ট্রেড খুঁজুন</button>
-    <div id="filterStatus">সব সিগন্যাল দেখানো হচ্ছে</div>
+    <button id="findTradesBtn">Find Suitable Trades</button>
+    <div id="filterStatus">Showing all approved signals</div>
   </div>
 
   <div id="signalsContainer">
     <section class="signals-section">
       <h2 class="title-potential">Analysis Pipeline</h2>
-      <div id="potentialSignalsBox" class="signals-box"><p>AI স্ক্যান করছে...</p></div>
+      <div id="potentialSignalsBox" class="signals-box"><p>AI is scanning for trade opportunities...</p></div>
     </section>
     <section class="signals-section">
-      <h2 class="title-new">New Signals (আপনার জন্য)</h2>
-      <div id="newSignalsBox" class="signals-box"><p>আপনার ব্যালেন্স অনুযায়ী ট্রেড খুঁজতে বাটনে ক্লিক করুন।</p></div>
+      <h2 class="title-new">New Signals (For You)</h2>
+      <div id="newSignalsBox" class="signals-box"><p>Click 'Find Suitable Trades' to filter for your balance.</p></div>
     </section>
     <section class="signals-section">
       <h2 class="title-live">Live Signals</h2>
-      <div id="liveSignalsBox" class="signals-box"><p>কোনো লাইভ ট্রেড নেই।</p></div>
+      <div id="liveSignalsBox" class="signals-box"><p>No active trades.</p></div>
     </section>
     <section class="signals-section">
       <h2 class="title-history">Trade History</h2>
-      <div id="historyBox" class="signals-box"><p>কোনো ট্রেড হিস্ট্রি নেই।</p></div>
+      <div id="historyBox" class="signals-box"><p>No past trades found.</p></div>
     </section>
   </div>
 
   <div id="marketTableContainer">
     <h2>All Markets (2s Refresh)</h2>
-    <!-- এই টেবিলটি আগের কোডে ভুলবশত বাদ পড়েছিল -->
     <table class="live-table" id="marketTable">
         <thead>
             <tr>
@@ -160,7 +159,6 @@
   </div>
 </main>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://s3.tradingview.com/tv.js"></script>
@@ -177,10 +175,11 @@ const symbols = [
 const TRADE_RISK_PERCENT = 2.0;
 const MINIMUM_TRADE_VALUE_USD = 1.0; 
 
-const MARKET_REFRESH_INTERVAL = 2000;
-const SIGNAL_SCAN_INTERVAL = 8000; 
-const ANALYSIS_INTERVAL = 4000;
-const APPROVAL_WIN_CHANCE = 65;
+// --- Faster Timers for better demo ---
+const MARKET_REFRESH_INTERVAL = 2000; // 2 seconds
+const SIGNAL_SCAN_INTERVAL = 6000;    // 6 seconds
+const ANALYSIS_INTERVAL = 3000;       // 3 seconds
+const APPROVAL_WIN_CHANCE = 60;       // Lowered for more frequent signals
 
 // --- DOM Elements ---
 const symbolSelect = document.getElementById("symbolSelect");
@@ -201,7 +200,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
-const signalsRef = database.ref('signals_v3'); 
+const signalsRef = database.ref('signals_v4'); // New path to avoid old data issues
 
 // --- State Variables ---
 let allSignals = [], lastPrices = {}, isFiltered = false, tvWidget;
@@ -229,17 +228,17 @@ function toggleSignalFilter() {
     isFiltered = !isFiltered;
     if (isFiltered) {
         const balance = parseFloat(balanceInput.value);
-        findTradesBtn.textContent = 'সব সিগন্যাল দেখুন';
-        filterStatus.textContent = `$${balance} ব্যালেন্সের জন্য ট্রেড দেখানো হচ্ছে`;
+        findTradesBtn.textContent = 'Show All Signals';
+        filterStatus.textContent = `Showing trades suitable for $${balance}`;
     } else {
-        findTradesBtn.textContent = 'আমার জন্য ট্রেড খুঁজুন';
-        filterStatus.textContent = 'সব সিগন্যাল দেখানো হচ্ছে';
+        findTradesBtn.textContent = 'Find Suitable Trades';
+        filterStatus.textContent = 'Showing all approved signals';
     }
     renderAllSignals();
 }
 
 // =================================================================
-// 3. SIGNAL PROCESSING PIPELINE (Scanner, Analyzer, Processor)
+// 3. SIGNAL PROCESSING PIPELINE
 // =================================================================
 function signalScanner() {
     const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
@@ -261,7 +260,7 @@ function signalScanner() {
             winChance: Math.floor(50 + Math.random() * 48),
             createdAt: new Date().toISOString(),
         };
-        database.ref('signals_v3/' + signalId).set(newSignal);
+        database.ref('signals_v4/' + signalId).set(newSignal);
     }
 }
 
@@ -270,7 +269,7 @@ function secondaryAnalyzer() {
     if (potentialSignals.length === 0) return;
     potentialSignals.forEach(signal => {
         if (signal.winChance > APPROVAL_WIN_CHANCE) {
-            database.ref('signals_v3/' + signal.id).update({ status: 'new' });
+            database.ref('signals_v4/' + signal.id).update({ status: 'new' });
         }
     });
 }
@@ -279,11 +278,12 @@ function processSignals() {
     const balance = parseFloat(balanceInput.value) || 0;
     allSignals.forEach(signal => {
         const currentPriceData = lastPrices[signal.symbolCode];
-        if (!currentPriceData && ['live', 'new'].includes(signal.status)) {
-             database.ref('signals_v3/' + signal.id).update({ status: 'error', result: 'Price data lost' });
-             return;
+        if (!currentPriceData) {
+            if (['live', 'new'].includes(signal.status)) {
+                database.ref('signals_v4/' + signal.id).update({ status: 'error', result: 'Price data lost' });
+            }
+            return;
         }
-        if (!currentPriceData) return;
         
         const currentPrice = currentPriceData.price;
         const updates = {};
@@ -299,7 +299,7 @@ function processSignals() {
             }
         }
         
-        if (signal.status === 'live' && signal.quantity) {
+        if (signal.status === 'live' && typeof signal.quantity === 'number') {
             updates.pnl_usd = (currentPrice - signal.entry) * signal.quantity * (signal.type === 'BUY' ? 1 : -1);
             const hasHitSL = (signal.type === 'BUY' && currentPrice <= signal.sl) || (signal.type === 'SELL' && currentPrice >= signal.sl);
             if (hasHitSL) {
@@ -317,11 +317,10 @@ function processSignals() {
         }
         
         if (Object.keys(updates).length > 0) {
-            database.ref('signals_v3/' + signal.id).update(updates);
+            database.ref('signals_v4/' + signal.id).update(updates);
         }
     });
 }
-
 
 // =================================================================
 // 4. UI RENDERING
@@ -348,19 +347,20 @@ function renderAllSignals() {
     }
 
     allSignals.forEach(s => {
-        if (s.status === 'potential') fragments.potential += createCard(s);
-        else if (s.status === 'live') fragments.live += createCard(s);
-        else if (s.status === 'closed' || s.status === 'error') fragments.history += createCard(s);
+        const cardHtml = createCard(s);
+        if (s.status === 'potential') fragments.potential += cardHtml;
+        else if (s.status === 'live') fragments.live += cardHtml;
+        else if (s.status === 'closed' || s.status === 'error') fragments.history += cardHtml;
     });
 
     newSignalsToShow.forEach(s => {
         fragments.new += createCard(s);
     });
 
-    potentialSignalsBox.innerHTML = fragments.potential || '<p style="text-align:center;color:var(--text-muted)">AI নতুন সিগন্যাল খুঁজছে...</p>';
-    newSignalsBox.innerHTML = fragments.new || (isFiltered ? '<p style="text-align:center;color:var(--text-muted)">আপনার ব্যালেন্সের জন্য কোনো উপযুক্ত নতুন সিগন্যাল নেই।</p>' : '<p style="text-align:center;color:var(--text-muted)">আপনার জন্য উপযুক্ত ট্রেড খুঁজতে বাটনে ক্লিক করুন।</p>');
-    liveSignalsBox.innerHTML = fragments.live || '<p style="text-align:center;color:var(--text-muted)">কোনো লাইভ ট্রেড নেই।</p>';
-    historyBox.innerHTML = fragments.history || '<p style="text-align:center;color:var(--text-muted)">কোনো ট্রেড হিস্ট্রি নেই।</p>';
+    potentialSignalsBox.innerHTML = fragments.potential || '<p style="text-align:center;color:var(--text-muted)">No potential signals found yet.</p>';
+    newSignalsBox.innerHTML = fragments.new || (isFiltered ? '<p style="text-align:center;color:var(--text-muted)">No suitable new signals for your balance.</p>' : '<p style="text-align:center;color:var(--text-muted)">Click "Find Suitable Trades" to filter.</p>');
+    liveSignalsBox.innerHTML = fragments.live || '<p style="text-align:center;color:var(--text-muted)">No active trades.</p>';
+    historyBox.innerHTML = fragments.history || '<p style="text-align:center;color:var(--text-muted)">No trade history.</p>';
 }
 
 function createCard(s) {
