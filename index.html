@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>kVT AI LIVE SIGNAL Dashboard (Stable Version)</title>
+<title>kVT AI Signal Dashboard - Categorized</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -18,10 +18,11 @@
     --danger: #ef4444;
     --warn: #fbbf24;
     --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --blue: #60a5fa;
+    --purple: #c084fc;
   }
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: Poppins, Segoe UI, sans-serif;
@@ -29,369 +30,343 @@
     color: var(--text);
   }
   header {
-    background: #020617;
-    padding: 1rem 2rem;
-    text-align: center;
-    user-select: none;
+    background: #020617; padding: 1rem 2rem;
+    text-align: center; user-select: none;
   }
-  header h1 {
-    color: var(--accent);
-    font-size: 1.8rem;
-    letter-spacing: 1px;
-    margin: 0;
-  }
+  header h1 { color: var(--accent); font-size: 1.8rem; letter-spacing: 1px; margin: 0; }
   main {
-    padding: 1rem 2rem 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    gap: 2rem;
-    grid-template-columns: 1fr;
+    padding: 1rem 2rem 2rem; max-width: 1600px;
+    margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;
   }
-  /* Desktop layout: Chart on left, signals/market on right */
+  #top-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+  }
   @media (min-width: 992px) {
-    main {
-      grid-template-columns: 2fr 1fr;
+    #top-section {
+        grid-template-columns: 2fr 1fr;
     }
   }
 
-  /* Main content area (left side) */
-  #left-col {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  /* Right side column */
-  #right-col {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  #tvChart {
-    width: 100%;
-    height: 550px;
-    border-radius: 12px;
-    border: 1px solid #334155;
-  }
-
+  #tvChart { width: 100%; height: 500px; border-radius: 12px; border: 1px solid #334155; }
+  
   #controlsPanel {
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 1rem 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
+    background: var(--panel); border-radius: 12px; padding: 1rem 1.5rem;
+    display: flex; flex-direction: column; gap: 1rem;
   }
-  #symbolSelect {
-    background: #334155;
-    color: var(--text);
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  #balanceInput {
-    background: #334155;
-    color: var(--text);
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    width: 150px;
-    margin-left: auto;
+  #symbolSelect, #balanceInput {
+    background: #334155; color: var(--text); border: none;
+    border-radius: 6px; padding: 0.5rem 1rem; font-size: 1rem; width: 100%;
   }
   #positionAdvice {
-    color: var(--accent);
-    font-size: 0.9rem;
-    font-weight: 600;
-    user-select: none;
-    background-color: var(--bg);
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    text-align: center;
-    flex-basis: 100%; /* Take full width on small screens */
+      color: var(--accent); font-size: 0.9rem; font-weight: 600;
+      user-select: none; background-color: var(--bg); padding: 0.75rem 1rem;
+      border-radius: 6px; text-align: center;
   }
-   @media(min-width: 768px){
-    #positionAdvice {
-        flex-basis: auto;
-    }
-   }
 
-  section {
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 1rem;
+  /* --- Signals Container --- */
+  #signalsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
   }
-  section h2 {
-    color: #60a5fa;
-    margin: 0 0 1rem 0;
-    font-size: 1.2rem;
-    user-select: none;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 0.75rem;
+  .signals-section {
+    background: var(--panel); border-radius: 12px; padding: 1rem;
+    display: flex; flex-direction: column; gap: 1rem;
   }
+  .signals-section h2 {
+    margin: 0 0 0.5rem 0; font-size: 1.2rem; border-bottom: 1px solid #334155;
+    padding-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;
+  }
+  .signals-section h2.title-potential { color: var(--purple); }
+  .signals-section h2.title-approved { color: var(--accent); }
+  .signals-section h2.title-history { color: var(--text-muted); }
+
+  .signals-box {
+    display: flex; flex-direction: column; gap: 1rem;
+    overflow-y: auto; max-height: 400px; padding-right: 5px;
+  }
+  .signals-box::-webkit-scrollbar { width: 5px; }
+  .signals-box::-webkit-scrollbar-track { background: var(--panel); }
+  .signals-box::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
 
   .signal-card {
-    background: var(--bg);
-    border: 1px solid #334155;
-    border-left: 5px solid var(--warn);
-    border-radius: 10px;
-    padding: 1rem;
-    user-select: none;
+    background: var(--bg); border: 1px solid #334155; border-radius: 8px;
+    padding: 1rem; transition: 0.3s; user-select: none; font-size: 0.9rem;
+    cursor: pointer;
   }
-  .signal-card p {
-    margin: 0.4rem 0;
-    font-size: 0.95rem;
-  }
-  .signal-card strong {
-    font-size: 1.1rem;
-    color: var(--warn);
-  }
-  
-  .live-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-  }
-  .live-table th,
-  .live-table td {
-    padding: 0.6rem 0.75rem;
-    text-align: center;
-    border-bottom: 1px solid #334155;
-  }
-  .live-table tr:last-child td {
-    border-bottom: none;
-  }
-  .price-up {
-    color: var(--accent);
-  }
-  .price-down {
-    color: var(--danger);
-  }
-
+  .signal-card:hover { border-color: var(--blue); }
+  .signal-card p { margin: 0.3rem 0; }
+  .signal-header { display: flex; justify-content: space-between; align-items: center; }
+  .signal-header strong { font-size: 1.1rem; }
+  .signal-header .type-buy { color: var(--accent); }
+  .signal-header .type-sell { color: var(--danger); }
+  .signal-footer { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; }
+  .win-chance { font-weight: 600; }
 </style>
 </head>
 <body>
-<header><h1>kVT AI LIVE SIGNAL</h1></header>
+<header><h1>kVT AI Signal Dashboard</h1></header>
 <main>
-  <div id="left-col">
-    <div id="tvChart"></div>
-    <div id="controlsPanel">
-      <select id="symbolSelect"></select>
-      <input type="number" id="balanceInput" value="1000" min="10" step="1" />
-      <div id="positionAdvice"></div>
-    </div>
+  <div id="top-section">
+      <div id="tvChart"></div>
+      <div id="controlsPanel">
+          <h2>Controls</h2>
+          <select id="symbolSelect"></select>
+          <label for="balanceInput">Your Balance (USD):</label>
+          <input type="number" id="balanceInput" value="1000" min="10" step="1" />
+          <div id="positionAdvice">Click on an Approved Signal for advice.</div>
+      </div>
   </div>
 
-  <div id="right-col">
-    <section>
-      <h2>Live Signal</h2>
-      <div id="signalBox"></div>
+  <div id="signalsContainer">
+    <section class="signals-section">
+      <h2 class="title-potential">Analysis Pipeline</h2>
+      <div id="analysisBox" class="signals-box"></div>
     </section>
-
-    <section>
-      <h2>All Markets (1s Refresh)</h2>
-      <table class="live-table" id="marketTable">
-        <thead>
-          <tr>
-            <th>Pair</th>
-            <th>Price</th>
-            <th>24h %</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <section class="signals-section">
+      <h2 class="title-approved">Approved Signals</h2>
+      <div id="approvedBox" class="signals-box"></div>
+    </section>
+    <section class="signals-section">
+      <h2 class="title-history">Trade History</h2>
+      <div id="historyBox" class="signals-box"></div>
     </section>
   </div>
 </main>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.6.8/dist/axios.min.js"></script>
 <script>
-  // =================================================================
-  // CONFIGURATION & DOM ELEMENTS
-  // =================================================================
-  const symbols = [
+// =================================================================
+// 1. CONFIGURATION & STATE
+// =================================================================
+const symbols = [
     { code: "BINANCE:BTCUSDT", label: "BTC/USDT" }, { code: "BINANCE:ETHUSDT", label: "ETH/USDT" },
-    { code: "BINANCE:BNBUSDT", label: "BNB/USDT" }, { code: "BINANCE:SOLUSDT", label: "SOL/USDT" },
-    { code: "BINANCE:XRPUSDT", label: "XRP/USDT" }, { code: "BINANCE:ADAUSDT", label: "ADA/USDT" },
-    { code: "BINANCE:DOGEUSDT", label: "DOGE/USDT" }, { code: "NASDAQ:TSLA", label: "TSLA" },
-    { code: "OANDA:XAUUSD", label: "GOLD" }, { code: "TVC:USOIL", label: "US OIL" },
-  ];
+    { code: "BINANCE:SOLUSDT", label: "SOL/USDT" }, { code: "OANDA:XAUUSD", label: "GOLD" },
+    { code: "TVC:USOIL", label: "US OIL" }, { code: "NASDAQ:TSLA", label: "TSLA" }
+];
+const HIGH_WIN_RATE_THRESHOLD = 80; // 80%
+const MAX_APPROVED_SIGNALS = 5;
 
-  const symbolSelect = document.getElementById("symbolSelect");
-  const balanceInput = document.getElementById("balanceInput");
-  const adviceBox = document.getElementById("positionAdvice");
-  const signalBox = document.getElementById("signalBox");
-  const tableBody = document.querySelector("#marketTable tbody");
-  
-  let tvWidget;
-  let currentSignal = null; // Holds the one and only active signal
-  let lastPrices = {}; // Caches latest prices for all symbols
+// --- DOM Elements ---
+const symbolSelect = document.getElementById("symbolSelect");
+const balanceInput = document.getElementById("balanceInput");
+const adviceBox = document.getElementById("positionAdvice");
+const analysisBox = document.getElementById("analysisBox");
+const approvedBox = document.getElementById("approvedBox");
+const historyBox = document.getElementById("historyBox");
 
-  // =================================================================
-  // INITIALIZATION
-  // =================================================================
-  function initializeApp() {
-    // 1. Populate the dropdown menu with symbols
-    symbols.forEach((s) => {
-      const opt = document.createElement("option");
-      opt.value = s.code;
-      opt.textContent = s.label;
-      symbolSelect.appendChild(opt);
+// --- State Management ---
+let tvWidget;
+let signalIdCounter = 0;
+let analysisSignals = [];
+let approvedSignals = [];
+let historySignals = [];
+
+// =================================================================
+// 2. INITIALIZATION
+// =================================================================
+function initializeApp() {
+    populateSymbolDropdown();
+    loadChart(symbols[0].code);
+
+    // Event Listeners
+    symbolSelect.addEventListener("change", e => loadChart(e.target.value));
+    balanceInput.addEventListener("input", () => {
+        adviceBox.textContent = "Click on an Approved Signal for advice.";
     });
 
-    // 2. Load the initial chart
-    loadChart(symbolSelect.value);
+    // Start the signal generation engine
+    setInterval(runSignalCycle, 5000); // Every 5 seconds, a new signal is generated
     
-    // 3. Generate the first signal
-    generateSignal(symbolSelect.options[0].text);
-    
-    // 4. Start live market data refresh
-    refreshMarket();
-    setInterval(refreshMarket, 1000);
-
-    // 5. Add event listeners
-    symbolSelect.addEventListener("change", handleSymbolChange);
-    balanceInput.addEventListener("input", () => updatePositionAdvice(currentSignal));
-  }
-
-  // =================================================================
-  // CORE FUNCTIONS
-  // =================================================================
-  
-  // This is the main trigger when user selects a new pair
-  function handleSymbolChange(e) {
-    const selectedSymbolCode = e.target.value;
-    const selectedSymbolLabel = e.target.options[e.target.selectedIndex].text;
-    
-    loadChart(selectedSymbolCode);
-    generateSignal(selectedSymbolLabel);
-  }
-
-  // Loads or updates the TradingView chart widget
-  function loadChart(symbolCode) {
-    if (tvWidget) {
-      tvWidget.setSymbol(symbolCode, "5", () => {});
-    } else {
-      tvWidget = new TradingView.widget({
-        container_id: "tvChart",
-        symbol: symbolCode,
-        interval: "5",
-        timezone: "Etc/UTC",
-        theme: "dark",
-        style: "1",
-        locale: "en",
-        allow_symbol_change: false,
-        autosize: true,
-      });
+    // Initial population
+    for(let i=0; i < 5; i++) {
+        generateNewAnalysisSignal();
     }
-  }
+    renderAllSignals();
+}
 
-  // Creates a new random signal for the selected pair
-  function generateSignal(pairLabel) {
+// =================================================================
+// 3. CORE SIGNAL LOGIC
+// =================================================================
+
+// Main cycle that drives the application
+function runSignalCycle() {
+    generateNewAnalysisSignal();
+    processAnalysisToApproved();
+    renderAllSignals();
+}
+
+// Step 1: A new signal is born in the analysis pipeline
+function generateNewAnalysisSignal() {
+    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
     const dir = Math.random() > 0.5 ? "BUY" : "SELL";
-    // Use a realistic price base if available, otherwise a random one
-    const basePrice = (lastPrices[pairLabel]?.price) || (100 + Math.random() * 50000);
+    const basePrice = 100 + Math.random() * 50000;
+    
     const entry = parseFloat(basePrice.toFixed(4));
-    
-    // Calculate SL and TPs based on entry price and direction
     const sl = parseFloat((dir === "BUY" ? entry * 0.99 : entry * 1.01).toFixed(4));
-    const tp1 = parseFloat((dir === "BUY" ? entry * 1.005 : entry * 0.995).toFixed(4));
-    const tp2 = parseFloat((dir === "BUY" ? entry * 1.012 : entry * 0.988).toFixed(4));
-    
-    const winChance = Math.floor(65 + Math.random() * 25);
-    
-    currentSignal = {
-      pair: pairLabel, type: dir, entry, sl, tp1, tp2, winChance
+    const tp = parseFloat((dir === "BUY" ? entry * 1.015 : entry * 0.985).toFixed(4));
+    const winChance = Math.floor(50 + Math.random() * 49); // 50% to 99%
+
+    const newSignal = {
+        id: ++signalIdCounter,
+        pair: randomSymbol.label,
+        symbolCode: randomSymbol.code,
+        type: dir, entry, sl, tp, winChance,
+        status: 'analysis'
     };
 
-    renderSignal(currentSignal);
-    updatePositionAdvice(currentSignal);
-  }
+    analysisSignals.unshift(newSignal); // Add to the beginning of the array
+    if (analysisSignals.length > 10) {
+        analysisSignals.pop(); // Keep the list from getting too long
+    }
+}
 
-  // Displays the current signal in the UI
-  function renderSignal(s) {
-    signalBox.innerHTML = `
-      <div class="signal-card">
-        <p>Pair: <strong>${s.pair}</strong></p>
-        <p>Direction: <b style="color:${s.type === 'BUY' ? 'var(--accent)' : 'var(--danger)'}">${s.type}</b></p>
-        <p>Entry Price: ${s.entry}</p>
-        <p>Stop Loss: ${s.sl}</p>
-        <p>Take Profit 1: ${s.tp1}</p>
-        <p>Take Profit 2: ${s.tp2}</p>
-        <p>Win Chance: ${s.winChance}%</p>
-      </div>
-    `;
-  }
-  
-  // Calculates and displays the position size advice
-  function updatePositionAdvice(s) {
-    if (!s) return;
-    const balance = parseFloat(balanceInput.value) || 0;
-    const riskPercent = 2.0; // Fixed 2% risk
+// Step 2: High-quality signals are promoted
+function processAnalysisToApproved() {
+    let newApprovedFound = false;
+    // Find a signal in analysis that meets the high win rate criteria
+    const signalToApproveIndex = analysisSignals.findIndex(s => s.winChance >= HIGH_WIN_RATE_THRESHOLD);
+
+    if (signalToApproveIndex !== -1) {
+        // Remove from analysis and get the signal
+        const [signalToApprove] = analysisSignals.splice(signalToApproveIndex, 1);
+        signalToApprove.status = 'approved';
+        
+        // If the approved list is full, move the oldest to history
+        if (approvedSignals.length >= MAX_APPROVED_SIGNALS) {
+            const oldestApproved = approvedSignals.pop(); // Remove the last (oldest) signal
+            moveToHistory(oldestApproved);
+        }
+        
+        approvedSignals.unshift(signalToApprove); // Add the new one to the top
+        newApprovedFound = true;
+    }
+}
+
+// Step 3: Signals end up in history
+function moveToHistory(signal) {
+    signal.status = 'closed';
+    // Simulate a win/loss result
+    signal.result = Math.random() < (signal.winChance / 100) ? 'Win' : 'Loss';
+    historySignals.unshift(signal);
+    if (historySignals.length > 10) {
+        historySignals.pop();
+    }
+}
+
+// =================================================================
+// 4. UI RENDERING & UTILITIES
+// =================================================================
+function renderAllSignals() {
+    renderSignalBox(analysisBox, analysisSignals, createAnalysisCard);
+    renderSignalBox(approvedBox, approvedSignals, createApprovedCard);
+    renderSignalBox(historyBox, historySignals, createHistoryCard);
+}
+
+function renderSignalBox(boxElement, signals, cardCreator) {
+    if (signals.length === 0) {
+        boxElement.innerHTML = `<p style="text-align:center; color: var(--text-muted)">No signals here yet.</p>`;
+        return;
+    }
+    boxElement.innerHTML = signals.map(cardCreator).join('');
     
+    // Add click listeners specifically for approved cards
+    if (boxElement.id === 'approvedBox') {
+        boxElement.querySelectorAll('.signal-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const signalId = parseInt(card.dataset.id);
+                const signal = approvedSignals.find(s => s.id === signalId);
+                if(signal) updatePositionAdvice(signal);
+            });
+        });
+    }
+}
+
+// --- Card Creators ---
+function createAnalysisCard(s) {
+    const winChanceColor = s.winChance >= HIGH_WIN_RATE_THRESHOLD ? 'var(--accent)' : 'var(--warn)';
+    return `
+        <div class="signal-card" data-id="${s.id}">
+            <div class="signal-header">
+                <strong>${s.pair}</strong>
+                <span class="win-chance" style="color:${winChanceColor};">${s.winChance}% Win Chance</span>
+            </div>
+            <p>Type: <span class="type-${s.type.toLowerCase()}">${s.type}</span> | Entry: ${s.entry}</p>
+        </div>
+    `;
+}
+
+function createApprovedCard(s) {
+    return `
+        <div class="signal-card" data-id="${s.id}" style="border-left: 5px solid var(--accent);">
+            <div class="signal-header">
+                <strong>${s.pair}</strong>
+                <span class="type-${s.type.toLowerCase()}" style="font-weight:600;">${s.type}</span>
+            </div>
+            <p>Entry: ${s.entry}</p>
+            <p>SL: ${s.sl} | TP: ${s.tp}</p>
+            <div class="signal-footer">Win Chance: ${s.winChance}%</div>
+        </div>
+    `;
+}
+
+function createHistoryCard(s) {
+    const resultColor = s.result === 'Win' ? 'var(--accent)' : 'var(--danger)';
+    return `
+        <div class="signal-card" data-id="${s.id}" style="opacity: 0.7;">
+            <div class="signal-header">
+                <strong>${s.pair} (${s.type})</strong>
+                <b style="color:${resultColor}">${s.result}</b>
+            </div>
+            <p>Entry: ${s.entry} | SL: ${s.sl}</p>
+        </div>
+    `;
+}
+
+function updatePositionAdvice(s) {
+    const balance = parseFloat(balanceInput.value) || 0;
+    const riskPercent = 2.0;
     const riskUsd = (balance * riskPercent) / 100;
     const priceDifference = Math.abs(s.entry - s.sl);
-    
+
     if (balance === 0 || priceDifference === 0) {
       adviceBox.textContent = `Set balance to calculate position size.`;
       return;
     }
     
     const quantity = riskUsd / priceDifference;
-    adviceBox.textContent = `Risking $${riskUsd.toFixed(2)} (2%) ▶ Position Qty: ${quantity.toFixed(4)}`;
-  }
+    adviceBox.textContent = `For ${s.pair}: Risking $${riskUsd.toFixed(2)} ▶ Qty ≈ ${quantity.toFixed(4)}`;
+}
 
-  // Fetches live market data and updates the table
-  async function refreshMarket() {
-    try {
-      const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
-      const marketData = response.data;
-      tableBody.innerHTML = ""; // Clear previous data
-      
-      symbols.forEach((sym) => {
-        let price = 0, change = 0;
-        
-        if (sym.code.startsWith("BINANCE:")) {
-          const data = marketData.find(d => d.symbol === sym.code.split(':')[1]);
-          if (data) {
-            price = parseFloat(data.lastPrice);
-            change = parseFloat(data.priceChangePercent);
-          }
-        } else {
-          // Mock data for non-Binance symbols
-          price = (lastPrices[sym.label]?.price || 100 + Math.random() * 500) * (1 + (Math.random() - 0.5) * 0.005);
-          change = (Math.random() - 0.5) * 5;
-        }
+// --- General Utilities ---
+function populateSymbolDropdown() {
+    symbols.forEach(s => symbolSelect.add(new Option(s.label, s.code)));
+}
 
-        // Cache the price for signal generation
-        lastPrices[sym.label] = { price };
-        
-        const priceClass = change >= 0 ? "price-up" : "price-down";
-        tableBody.insertAdjacentHTML("beforeend", `
-          <tr>
-            <td>${sym.label}</td>
-            <td class="${priceClass}">${price.toFixed(4)}</td>
-            <td class="${priceClass}">${change.toFixed(2)}%</td>
-          </tr>
-        `);
-      });
-    } catch (error) {
-      console.error("Error fetching market data:", error);
-      tableBody.innerHTML = `<tr><td colspan="3" style="color:var(--danger)">Could not load market data.</td></tr>`;
+function loadChart(symbolCode) {
+    if (tvWidget) {
+        tvWidget.setSymbol(symbolCode, "5", () => {});
+    } else {
+        tvWidget = new TradingView.widget({
+            container_id: "tvChart",
+            symbol: symbolCode,
+            interval: "5",
+            timezone: "Etc/UTC",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            allow_symbol_change: false,
+            autosize: true,
+        });
     }
-  }
+}
 
-  // =================================================================
-  // START THE APPLICATION
-  // =================================================================
-  initializeApp();
-
+// =================================================================
+// 5. START THE APPLICATION
+// =================================================================
+initializeApp();
 </script>
 </body>
 </html>
