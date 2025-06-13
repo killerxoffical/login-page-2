@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>kVT AI Personalized Signal Dashboard</title>
+<title>kVT AI LIVE SIGNAL Dashboard (Stable Version)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -18,11 +18,10 @@
     --danger: #ef4444;
     --warn: #fbbf24;
     --text: #e2e8f0;
-    --text-muted: #94a3b8;
-    --blue: #60a5fa;
-    --purple: #c084fc;
   }
-  * { box-sizing: border-box; scroll-behavior: smooth; }
+  * {
+    box-sizing: border-box;
+  }
   body {
     margin: 0;
     font-family: Poppins, Segoe UI, sans-serif;
@@ -30,415 +29,369 @@
     color: var(--text);
   }
   header {
-    background: #020617; padding: 1rem 2rem;
-    text-align: center; user-select: none;
+    background: #020617;
+    padding: 1rem 2rem;
+    text-align: center;
+    user-select: none;
   }
-  header h1 { color: var(--accent); font-size: 1.8rem; letter-spacing: 1px; margin: 0; }
+  header h1 {
+    color: var(--accent);
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    margin: 0;
+  }
   main {
-    padding: 1rem 2rem 2rem; max-width: 1600px;
-    margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;
+    padding: 1rem 2rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
   }
-  #tvChart { width: 100%; height: 450px; border-radius: 12px; border: 1px solid #334155; }
-  #controlsPanel {
-    background: var(--panel); border-radius: 12px; padding: 1rem 1.5rem;
-    display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem;
+  /* Desktop layout: Chart on left, signals/market on right */
+  @media (min-width: 992px) {
+    main {
+      grid-template-columns: 2fr 1fr;
+    }
   }
-  #symbolSelect, #balanceInput {
-    background: #334155; color: var(--text); border: none;
-    border-radius: 6px; padding: 0.5rem 1rem; font-size: 1rem;
-  }
-  #balanceInput { width: 150px; }
-  
-  #findTradesBtn {
-    background-color: var(--accent); color: #020617;
-    border: none; border-radius: 6px; padding: 0.6rem 1.2rem;
-    font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.3s;
-  }
-  #findTradesBtn:hover { background-color: #86efac; }
-  #filterStatus { font-size: 0.9rem; color: var(--text-muted); flex-grow: 1; text-align: right; }
 
-  #signalsContainer {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  /* Main content area (left side) */
+  #left-col {
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
   }
-  .signals-section {
-    background: var(--panel); border-radius: 12px; padding: 1rem;
-    display: flex; flex-direction: column; gap: 1rem;
-  }
-  .signals-section h2 {
-    margin: 0 0 0.5rem 0; font-size: 1.2rem; border-bottom: 1px solid #334155;
-    padding-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;
-  }
-  .signals-section h2.title-potential { color: var(--purple); }
-  .signals-section h2.title-new { color: var(--blue); }
-  .signals-section h2.title-live { color: var(--warn); }
-  .signals-section h2.title-history { color: var(--text-muted); }
 
-  .signals-box {
-    display: flex; flex-direction: column; gap: 1rem;
-    overflow-y: auto; max-height: 500px; padding-right: 8px;
+  /* Right side column */
+  #right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
-  .signals-box::-webkit-scrollbar { width: 6px; }
-  .signals-box::-webkit-scrollbar-track { background: var(--panel); }
-  .signals-box::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-  
+
+  #tvChart {
+    width: 100%;
+    height: 550px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+  }
+
+  #controlsPanel {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  #symbolSelect {
+    background: #334155;
+    color: var(--text);
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  #balanceInput {
+    background: #334155;
+    color: var(--text);
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    width: 150px;
+    margin-left: auto;
+  }
+  #positionAdvice {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+    user-select: none;
+    background-color: var(--bg);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-align: center;
+    flex-basis: 100%; /* Take full width on small screens */
+  }
+   @media(min-width: 768px){
+    #positionAdvice {
+        flex-basis: auto;
+    }
+   }
+
+  section {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+  section h2 {
+    color: #60a5fa;
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    user-select: none;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 0.75rem;
+  }
+
   .signal-card {
-    background: var(--bg); border: 1px solid #334155; border-radius: 8px;
-    padding: 1rem; transition: 0.3s; user-select: none; font-size: 0.9rem;
+    background: var(--bg);
+    border: 1px solid #334155;
+    border-left: 5px solid var(--warn);
+    border-radius: 10px;
+    padding: 1rem;
+    user-select: none;
   }
-  .signal-card.status-potential { border-left: 5px solid var(--purple); }
-  .signal-card.status-new { border-left: 5px solid var(--blue); cursor: pointer; }
-  .signal-card.status-live { border-left: 5px solid var(--warn); animation: pulse-border 2s infinite; }
-  .signal-card.status-win { border-left: 5px solid var(--accent); }
-  .signal-card.status-loss { border-left: 5px solid var(--danger); }
-  .signal-card:hover { border-color: var(--blue); }
-  
-  @keyframes pulse-border {
-    50% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+  .signal-card p {
+    margin: 0.4rem 0;
+    font-size: 0.95rem;
+  }
+  .signal-card strong {
+    font-size: 1.1rem;
+    color: var(--warn);
   }
   
-  .signal-card p { margin: 0.3rem 0; }
-  .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-  .signal-header strong { font-size: 1.1rem; }
-  .signal-header .type-buy { color: var(--accent); }
-  .signal-header .type-sell { color: var(--danger); }
-  .price-up { color: var(--accent); }
-  .price-down { color: var(--danger); }
-  .signal-pnl { font-weight: 600; font-size: 1.1rem; }
-  .signal-footer { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; }
-  
-  #marketTableContainer { background: var(--panel); border-radius: 12px; padding: 1rem; }
-  .live-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  .live-table th, .live-table td { padding: 0.5rem 0.75rem; text-align: center; border-bottom: 1px solid #334155; }
+  .live-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .live-table th,
+  .live-table td {
+    padding: 0.6rem 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+  }
+  .live-table tr:last-child td {
+    border-bottom: none;
+  }
+  .price-up {
+    color: var(--accent);
+  }
+  .price-down {
+    color: var(--danger);
+  }
+
 </style>
 </head>
 <body>
-<header><h1>kVT AI Signal Dashboard</h1></header>
+<header><h1>kVT AI LIVE SIGNAL</h1></header>
 <main>
-  <div id="tvChart"></div>
-
-  <div id="controlsPanel">
-    <select id="symbolSelect"></select>
-    <label for="balanceInput" style="color: var(--text); font-weight: 600;">Your Balance (USD):</label>
-    <input type="number" id="balanceInput" value="1000" min="10" step="1" />
-    <button id="findTradesBtn">Find Suitable Trades</button>
-    <div id="filterStatus">Showing all approved signals</div>
+  <div id="left-col">
+    <div id="tvChart"></div>
+    <div id="controlsPanel">
+      <select id="symbolSelect"></select>
+      <input type="number" id="balanceInput" value="1000" min="10" step="1" />
+      <div id="positionAdvice"></div>
+    </div>
   </div>
 
-  <div id="signalsContainer">
-    <section class="signals-section">
-      <h2 class="title-potential">Analysis Pipeline</h2>
-      <div id="potentialSignalsBox" class="signals-box"><p>AI is scanning for trade opportunities...</p></div>
+  <div id="right-col">
+    <section>
+      <h2>Live Signal</h2>
+      <div id="signalBox"></div>
     </section>
-    <section class="signals-section">
-      <h2 class="title-new">New Signals (For You)</h2>
-      <div id="newSignalsBox" class="signals-box"><p>Click 'Find Suitable Trades' to filter for your balance.</p></div>
-    </section>
-    <section class="signals-section">
-      <h2 class="title-live">Live Signals</h2>
-      <div id="liveSignalsBox" class="signals-box"><p>No active trades.</p></div>
-    </section>
-    <section class="signals-section">
-      <h2 class="title-history">Trade History</h2>
-      <div id="historyBox" class="signals-box"><p>No past trades found.</p></div>
-    </section>
-  </div>
 
-  <div id="marketTableContainer">
-    <h2>All Markets (2s Refresh)</h2>
-    <table class="live-table" id="marketTable">
+    <section>
+      <h2>All Markets (1s Refresh)</h2>
+      <table class="live-table" id="marketTable">
         <thead>
-            <tr>
-                <th>Pair</th>
-                <th>Price</th>
-                <th>24h %</th>
-            </tr>
+          <tr>
+            <th>Pair</th>
+            <th>Price</th>
+            <th>24h %</th>
+          </tr>
         </thead>
         <tbody></tbody>
-    </table>
+      </table>
+    </section>
   </div>
 </main>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios@1.6.8/dist/axios.min.js"></script>
 <script>
-// =================================================================
-// 1. CONFIGURATION & INITIALIZATION
-// =================================================================
-const symbols = [
+  // =================================================================
+  // CONFIGURATION & DOM ELEMENTS
+  // =================================================================
+  const symbols = [
     { code: "BINANCE:BTCUSDT", label: "BTC/USDT" }, { code: "BINANCE:ETHUSDT", label: "ETH/USDT" },
-    { code: "BINANCE:SOLUSDT", label: "SOL/USDT" }, { code: "OANDA:XAUUSD", label: "GOLD" },
-    { code: "TVC:USOIL", label: "US OIL" }, { code: "NASDAQ:TSLA", label: "TSLA" }
-];
-const TRADE_RISK_PERCENT = 2.0;
-const MINIMUM_TRADE_VALUE_USD = 1.0; 
+    { code: "BINANCE:BNBUSDT", label: "BNB/USDT" }, { code: "BINANCE:SOLUSDT", label: "SOL/USDT" },
+    { code: "BINANCE:XRPUSDT", label: "XRP/USDT" }, { code: "BINANCE:ADAUSDT", label: "ADA/USDT" },
+    { code: "BINANCE:DOGEUSDT", label: "DOGE/USDT" }, { code: "NASDAQ:TSLA", label: "TSLA" },
+    { code: "OANDA:XAUUSD", label: "GOLD" }, { code: "TVC:USOIL", label: "US OIL" },
+  ];
 
-// --- Faster Timers for better demo ---
-const MARKET_REFRESH_INTERVAL = 2000; // 2 seconds
-const SIGNAL_SCAN_INTERVAL = 6000;    // 6 seconds
-const ANALYSIS_INTERVAL = 3000;       // 3 seconds
-const APPROVAL_WIN_CHANCE = 60;       // Lowered for more frequent signals
+  const symbolSelect = document.getElementById("symbolSelect");
+  const balanceInput = document.getElementById("balanceInput");
+  const adviceBox = document.getElementById("positionAdvice");
+  const signalBox = document.getElementById("signalBox");
+  const tableBody = document.querySelector("#marketTable tbody");
+  
+  let tvWidget;
+  let currentSignal = null; // Holds the one and only active signal
+  let lastPrices = {}; // Caches latest prices for all symbols
 
-// --- DOM Elements ---
-const symbolSelect = document.getElementById("symbolSelect");
-const balanceInput = document.getElementById("balanceInput");
-const findTradesBtn = document.getElementById("findTradesBtn");
-const filterStatus = document.getElementById("filterStatus");
-const potentialSignalsBox = document.getElementById("potentialSignalsBox");
-const newSignalsBox = document.getElementById("newSignalsBox");
-const liveSignalsBox = document.getElementById("liveSignalsBox");
-const historyBox = document.getElementById("historyBox");
-const marketTableBody = document.querySelector("#marketTable tbody");
+  // =================================================================
+  // INITIALIZATION
+  // =================================================================
+  function initializeApp() {
+    // 1. Populate the dropdown menu with symbols
+    symbols.forEach((s) => {
+      const opt = document.createElement("option");
+      opt.value = s.code;
+      opt.textContent = s.label;
+      symbolSelect.appendChild(opt);
+    });
 
-// --- Firebase Config ---
-const firebaseConfig = {
-    apiKey: "AIzaSyBhATVeER6lVomkHqfvbtcM8j-xhLR8ZyY",
-    databaseURL: "https://ff-cash-587aa-default-rtdb.firebaseio.com",
-    projectId: "ff-cash-587aa",
-};
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const signalsRef = database.ref('signals_v4'); // New path to avoid old data issues
-
-// --- State Variables ---
-let allSignals = [], lastPrices = {}, isFiltered = false, tvWidget;
-
-// =================================================================
-// 2. CORE APPLICATION LOGIC & EVENT LISTENERS
-// =================================================================
-function initializeApp() {
-    populateSymbolDropdown();
-    loadChart(symbols[0].code);
+    // 2. Load the initial chart
+    loadChart(symbolSelect.value);
     
-    findTradesBtn.addEventListener('click', toggleSignalFilter);
-
-    signalsRef.on('value', (snapshot) => {
-        allSignals = snapshot.val() ? Object.values(snapshot.val()) : [];
-        renderAllSignals();
-    });
-
-    setInterval(refreshMarketData, MARKET_REFRESH_INTERVAL);
-    setInterval(signalScanner, SIGNAL_SCAN_INTERVAL);
-    setInterval(secondaryAnalyzer, ANALYSIS_INTERVAL);
-}
-
-function toggleSignalFilter() {
-    isFiltered = !isFiltered;
-    if (isFiltered) {
-        const balance = parseFloat(balanceInput.value);
-        findTradesBtn.textContent = 'Show All Signals';
-        filterStatus.textContent = `Showing trades suitable for $${balance}`;
-    } else {
-        findTradesBtn.textContent = 'Find Suitable Trades';
-        filterStatus.textContent = 'Showing all approved signals';
-    }
-    renderAllSignals();
-}
-
-// =================================================================
-// 3. SIGNAL PROCESSING PIPELINE
-// =================================================================
-function signalScanner() {
-    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-    const priceData = lastPrices[randomSymbol.code];
-    const hasExistingSignal = allSignals.some(s => s.symbolCode === randomSymbol.code && s.status !== 'closed' && s.status !== 'error');
-
-    if (priceData && !hasExistingSignal) {
-        const basePrice = priceData.price;
-        const dir = Math.random() > 0.5 ? "BUY" : "SELL";
-        const volatility = 0.02;
-        const entry = basePrice * (dir === 'BUY' ? 0.998 : 1.002);
-        const sl = entry * (dir === 'BUY' ? (1 - volatility) : (1 + volatility));
-        const tp1 = entry * (dir === 'BUY' ? (1 + volatility * 0.7) : (1 - volatility * 0.7));
-        const tp2 = entry * (dir === 'BUY' ? (1 + volatility * 1.5) : (1 - volatility * 1.5));
-        const signalId = Date.now();
-        const newSignal = {
-            id: signalId, pair: randomSymbol.label, symbolCode: randomSymbol.code,
-            status: 'potential', type: dir, entry, sl, tp: [tp1, tp2],
-            winChance: Math.floor(50 + Math.random() * 48),
-            createdAt: new Date().toISOString(),
-        };
-        database.ref('signals_v4/' + signalId).set(newSignal);
-    }
-}
-
-function secondaryAnalyzer() {
-    const potentialSignals = allSignals.filter(s => s.status === 'potential');
-    if (potentialSignals.length === 0) return;
-    potentialSignals.forEach(signal => {
-        if (signal.winChance > APPROVAL_WIN_CHANCE) {
-            database.ref('signals_v4/' + signal.id).update({ status: 'new' });
-        }
-    });
-}
-
-function processSignals() {
-    const balance = parseFloat(balanceInput.value) || 0;
-    allSignals.forEach(signal => {
-        const currentPriceData = lastPrices[signal.symbolCode];
-        if (!currentPriceData) {
-            if (['live', 'new'].includes(signal.status)) {
-                database.ref('signals_v4/' + signal.id).update({ status: 'error', result: 'Price data lost' });
-            }
-            return;
-        }
-        
-        const currentPrice = currentPriceData.price;
-        const updates = {};
-        
-        if (signal.status === 'new') {
-            const hasHitEntry = (signal.type === 'BUY' && currentPrice <= signal.entry) || (signal.type === 'SELL' && currentPrice >= signal.entry);
-            if (hasHitEntry) {
-                updates.status = 'live';
-                updates.entryTime = new Date().toISOString();
-                const riskUsd = (balance * TRADE_RISK_PERCENT) / 100;
-                const diff = Math.abs(signal.entry - signal.sl);
-                updates.quantity = diff > 0 ? (riskUsd / diff) : 0;
-            }
-        }
-        
-        if (signal.status === 'live' && typeof signal.quantity === 'number') {
-            updates.pnl_usd = (currentPrice - signal.entry) * signal.quantity * (signal.type === 'BUY' ? 1 : -1);
-            const hasHitSL = (signal.type === 'BUY' && currentPrice <= signal.sl) || (signal.type === 'SELL' && currentPrice >= signal.sl);
-            if (hasHitSL) {
-                updates.status = 'closed'; updates.result = 'Loss'; updates.closePrice = signal.sl;
-                updates.pnl_usd = (signal.sl - signal.entry) * signal.quantity * (signal.type === 'BUY' ? 1 : -1);
-            } else {
-                for (let i = signal.tp.length - 1; i >= 0; i--) {
-                    if ((signal.type === 'BUY' && currentPrice >= signal.tp[i]) || (signal.type === 'SELL' && currentPrice <= signal.tp[i])) {
-                        updates.status = 'closed'; updates.result = `Win (TP${i+1})`; updates.closePrice = signal.tp[i];
-                        updates.pnl_usd = (signal.tp[i] - signal.entry) * signal.quantity * (signal.type === 'BUY' ? 1 : -1);
-                        break;
-                    }
-                }
-            }
-        }
-        
-        if (Object.keys(updates).length > 0) {
-            database.ref('signals_v4/' + signal.id).update(updates);
-        }
-    });
-}
-
-// =================================================================
-// 4. UI RENDERING
-// =================================================================
-function renderAllSignals() {
-    const fragments = { potential: '', new: '', live: '', history: '' };
-    const balance = parseFloat(balanceInput.value) || 0;
+    // 3. Generate the first signal
+    generateSignal(symbolSelect.options[0].text);
     
-    allSignals.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // 4. Start live market data refresh
+    refreshMarket();
+    setInterval(refreshMarket, 1000);
 
-    let newSignalsToShow = allSignals.filter(s => s.status === 'new');
+    // 5. Add event listeners
+    symbolSelect.addEventListener("change", handleSymbolChange);
+    balanceInput.addEventListener("input", () => updatePositionAdvice(currentSignal));
+  }
+
+  // =================================================================
+  // CORE FUNCTIONS
+  // =================================================================
+  
+  // This is the main trigger when user selects a new pair
+  function handleSymbolChange(e) {
+    const selectedSymbolCode = e.target.value;
+    const selectedSymbolLabel = e.target.options[e.target.selectedIndex].text;
     
-    if (isFiltered) {
-        newSignalsToShow = newSignalsToShow.filter(signal => {
-            const riskUsd = (balance * TRADE_RISK_PERCENT) / 100;
-            const diff = Math.abs(signal.entry - signal.sl);
-            if (diff === 0) return false;
-            
-            const qty = riskUsd / diff;
-            const positionValue = qty * signal.entry;
-            
-            return positionValue >= MINIMUM_TRADE_VALUE_USD;
-        });
-    }
+    loadChart(selectedSymbolCode);
+    generateSignal(selectedSymbolLabel);
+  }
 
-    allSignals.forEach(s => {
-        const cardHtml = createCard(s);
-        if (s.status === 'potential') fragments.potential += cardHtml;
-        else if (s.status === 'live') fragments.live += cardHtml;
-        else if (s.status === 'closed' || s.status === 'error') fragments.history += cardHtml;
-    });
-
-    newSignalsToShow.forEach(s => {
-        fragments.new += createCard(s);
-    });
-
-    potentialSignalsBox.innerHTML = fragments.potential || '<p style="text-align:center;color:var(--text-muted)">No potential signals found yet.</p>';
-    newSignalsBox.innerHTML = fragments.new || (isFiltered ? '<p style="text-align:center;color:var(--text-muted)">No suitable new signals for your balance.</p>' : '<p style="text-align:center;color:var(--text-muted)">Click "Find Suitable Trades" to filter.</p>');
-    liveSignalsBox.innerHTML = fragments.live || '<p style="text-align:center;color:var(--text-muted)">No active trades.</p>';
-    historyBox.innerHTML = fragments.history || '<p style="text-align:center;color:var(--text-muted)">No trade history.</p>';
-}
-
-function createCard(s) {
-    let content = '';
-    const header = `<div class="signal-header"><strong>${s.pair}</strong><b class="type-${s.type.toLowerCase()}">${s.type}</b></div>`;
-
-    switch(s.status) {
-        case 'potential':
-            content = `${header}<p>Entry: ${s.entry.toFixed(4)} | SL: ${s.sl.toFixed(4)}</p><p>Win Chance: <b style="color: ${s.winChance > APPROVAL_WIN_CHANCE ? 'var(--accent)' : 'var(--warn)'}">${s.winChance}%</b></p><div class="signal-footer">Awaiting analysis...</div>`;
-            break;
-        case 'new':
-            content = `${header}<p>Entry Price: ${s.entry.toFixed(4)}</p><p>SL: ${s.sl.toFixed(4)} | TP: ${s.tp.map(t=>t.toFixed(4)).join(' / ')}</p><div class="signal-footer">Approved! Awaiting entry price.</div>`;
-            break;
-        case 'live':
-            const pnl = s.pnl_usd || 0;
-            const pnlClass = pnl >= 0 ? 'price-up' : 'price-down';
-            content = `<div class="signal-header"><strong>${s.pair}</strong><span class="signal-pnl ${pnlClass}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span></div><p><b>${s.type}</b> | Entry: ${s.entry.toFixed(4)}</p><p>Current: <b class="${pnlClass}">${(lastPrices[s.symbolCode]?.price || 0).toFixed(4)}</b></p><div class="signal-footer">Live Since: ${new Date(s.entryTime).toLocaleTimeString()}</div>`;
-            break;
-        case 'closed': case 'error':
-            const isWin = s.result && s.result.includes('Win');
-            const resultClass = s.status === 'error' ? 'status-error' : (isWin ? 'price-up' : 'price-down');
-            const pnlFinal = s.pnl_usd || 0;
-            content = `<div class="signal-header"><strong>${s.pair} (${s.type})</strong><b class="${resultClass}">${s.result}</b></div><p>Entry: ${s.entry.toFixed(4)} | Closed: ${(s.closePrice || 0).toFixed(4)}</p><p><strong>Final P/L: <span class="${resultClass}">${pnlFinal >= 0 ? '+' : ''}$${pnlFinal.toFixed(2)}</span></strong></p><div class="signal-footer">Created: ${new Date(s.createdAt).toLocaleTimeString()}</div>`;
-            break;
-    }
-    return `<div class="signal-card status-${s.status}" data-id="${s.id}">${content}</div>`;
-}
-
-// =================================================================
-// 5. UTILITY FUNCTIONS
-// =================================================================
-function populateSymbolDropdown() {
-    symbols.forEach(s => symbolSelect.add(new Option(s.label, s.code)));
-    symbolSelect.addEventListener("change", e => loadChart(e.target.value));
-}
-
-function loadChart(sym) {
+  // Loads or updates the TradingView chart widget
+  function loadChart(symbolCode) {
     if (tvWidget) {
-        tvWidget.setSymbol(sym, "5", () => {});
+      tvWidget.setSymbol(symbolCode, "5", () => {});
     } else {
-        tvWidget = new TradingView.widget({
-            container: 'tvChart', symbol: sym, interval: "5", timezone: "Asia/Dhaka", theme: "dark",
-            style: "1", locale: "en", allow_symbol_change: false, autosize: true,
-        });
+      tvWidget = new TradingView.widget({
+        container_id: "tvChart",
+        symbol: symbolCode,
+        interval: "5",
+        timezone: "Etc/UTC",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        allow_symbol_change: false,
+        autosize: true,
+      });
     }
-}
+  }
 
-async function refreshMarketData() {
+  // Creates a new random signal for the selected pair
+  function generateSignal(pairLabel) {
+    const dir = Math.random() > 0.5 ? "BUY" : "SELL";
+    // Use a realistic price base if available, otherwise a random one
+    const basePrice = (lastPrices[pairLabel]?.price) || (100 + Math.random() * 50000);
+    const entry = parseFloat(basePrice.toFixed(4));
+    
+    // Calculate SL and TPs based on entry price and direction
+    const sl = parseFloat((dir === "BUY" ? entry * 0.99 : entry * 1.01).toFixed(4));
+    const tp1 = parseFloat((dir === "BUY" ? entry * 1.005 : entry * 0.995).toFixed(4));
+    const tp2 = parseFloat((dir === "BUY" ? entry * 1.012 : entry * 0.988).toFixed(4));
+    
+    const winChance = Math.floor(65 + Math.random() * 25);
+    
+    currentSignal = {
+      pair: pairLabel, type: dir, entry, sl, tp1, tp2, winChance
+    };
+
+    renderSignal(currentSignal);
+    updatePositionAdvice(currentSignal);
+  }
+
+  // Displays the current signal in the UI
+  function renderSignal(s) {
+    signalBox.innerHTML = `
+      <div class="signal-card">
+        <p>Pair: <strong>${s.pair}</strong></p>
+        <p>Direction: <b style="color:${s.type === 'BUY' ? 'var(--accent)' : 'var(--danger)'}">${s.type}</b></p>
+        <p>Entry Price: ${s.entry}</p>
+        <p>Stop Loss: ${s.sl}</p>
+        <p>Take Profit 1: ${s.tp1}</p>
+        <p>Take Profit 2: ${s.tp2}</p>
+        <p>Win Chance: ${s.winChance}%</p>
+      </div>
+    `;
+  }
+  
+  // Calculates and displays the position size advice
+  function updatePositionAdvice(s) {
+    if (!s) return;
+    const balance = parseFloat(balanceInput.value) || 0;
+    const riskPercent = 2.0; // Fixed 2% risk
+    
+    const riskUsd = (balance * riskPercent) / 100;
+    const priceDifference = Math.abs(s.entry - s.sl);
+    
+    if (balance === 0 || priceDifference === 0) {
+      adviceBox.textContent = `Set balance to calculate position size.`;
+      return;
+    }
+    
+    const quantity = riskUsd / priceDifference;
+    adviceBox.textContent = `Risking $${riskUsd.toFixed(2)} (2%) ▶ Position Qty: ${quantity.toFixed(4)}`;
+  }
+
+  // Fetches live market data and updates the table
+  async function refreshMarket() {
     try {
-        const binance = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
-        const cryptoData = binance.data;
-        let tableHtml = "";
+      const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
+      const marketData = response.data;
+      tableBody.innerHTML = ""; // Clear previous data
+      
+      symbols.forEach((sym) => {
+        let price = 0, change = 0;
         
-        symbols.forEach((sym) => {
-            let price, chg;
-            if (sym.code.startsWith("BINANCE:")) {
-                const d = cryptoData.find((x) => x.symbol === sym.code.split(":")[1]);
-                if (d) { price = parseFloat(d.lastPrice); chg = parseFloat(d.priceChangePercent); }
-            } else {
-                const last = lastPrices[sym.code]?.price ?? 100 + Math.random() * 500;
-                price = last + (Math.random() - 0.5) * last * 0.003; chg = ((price - last) / last) * 1000;
-            }
-            if (price) {
-                lastPrices[sym.code] = { price, chg };
-                const cls = chg >= 0 ? 'price-up' : 'price-down';
-                tableHtml += `<tr><td>${sym.label}</td><td class="${cls}">${price.toFixed(4)}</td><td class="${cls}">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</td></tr>`;
-            }
-        });
-        
-        marketTableBody.innerHTML = tableHtml;
-        processSignals(); 
-    } catch (e) { console.error("Market refresh error:", e); }
-}
+        if (sym.code.startsWith("BINANCE:")) {
+          const data = marketData.find(d => d.symbol === sym.code.split(':')[1]);
+          if (data) {
+            price = parseFloat(data.lastPrice);
+            change = parseFloat(data.priceChangePercent);
+          }
+        } else {
+          // Mock data for non-Binance symbols
+          price = (lastPrices[sym.label]?.price || 100 + Math.random() * 500) * (1 + (Math.random() - 0.5) * 0.005);
+          change = (Math.random() - 0.5) * 5;
+        }
 
-// =================================================================
-// 6. START THE APP
-// =================================================================
-initializeApp();
+        // Cache the price for signal generation
+        lastPrices[sym.label] = { price };
+        
+        const priceClass = change >= 0 ? "price-up" : "price-down";
+        tableBody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td>${sym.label}</td>
+            <td class="${priceClass}">${price.toFixed(4)}</td>
+            <td class="${priceClass}">${change.toFixed(2)}%</td>
+          </tr>
+        `);
+      });
+    } catch (error) {
+      console.error("Error fetching market data:", error);
+      tableBody.innerHTML = `<tr><td colspan="3" style="color:var(--danger)">Could not load market data.</td></tr>`;
+    }
+  }
+
+  // =================================================================
+  // START THE APPLICATION
+  // =================================================================
+  initializeApp();
+
 </script>
 </body>
 </html>
