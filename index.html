@@ -94,7 +94,7 @@
   .signal-card:hover { border-color: var(--blue); }
   
   @keyframes pulse-border {
-    50% { box-shadow: 0 0 10px var(--warn); }
+    50% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
   }
   
   .signal-card p { margin: 0.3rem 0; }
@@ -106,6 +106,7 @@
   .price-down { color: var(--danger); }
   .signal-pnl { font-weight: 600; font-size: 1.1rem; }
   .signal-footer { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; }
+  
   #marketTableContainer { background: var(--panel); border-radius: 12px; padding: 1rem; }
   .live-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   .live-table th, .live-table td { padding: 0.5rem 0.75rem; text-align: center; border-bottom: 1px solid #334155; }
@@ -145,8 +146,15 @@
 
   <div id="marketTableContainer">
     <h2>All Markets (2s Refresh)</h2>
+    <!-- এই টেবিলটি আগের কোডে ভুলবশত বাদ পড়েছিল -->
     <table class="live-table" id="marketTable">
-        <thead><tr><th>Pair</th><th>Price</th><th>24h %</th></tr></thead>
+        <thead>
+            <tr>
+                <th>Pair</th>
+                <th>Price</th>
+                <th>24h %</th>
+            </tr>
+        </thead>
         <tbody></tbody>
     </table>
   </div>
@@ -286,11 +294,12 @@ function processSignals() {
                 updates.status = 'live';
                 updates.entryTime = new Date().toISOString();
                 const riskUsd = (balance * TRADE_RISK_PERCENT) / 100;
-                updates.quantity = (riskUsd / Math.abs(signal.entry - signal.sl));
+                const diff = Math.abs(signal.entry - signal.sl);
+                updates.quantity = diff > 0 ? (riskUsd / diff) : 0;
             }
         }
         
-        if (signal.status === 'live') {
+        if (signal.status === 'live' && signal.quantity) {
             updates.pnl_usd = (currentPrice - signal.entry) * signal.quantity * (signal.type === 'BUY' ? 1 : -1);
             const hasHitSL = (signal.type === 'BUY' && currentPrice <= signal.sl) || (signal.type === 'SELL' && currentPrice >= signal.sl);
             if (hasHitSL) {
